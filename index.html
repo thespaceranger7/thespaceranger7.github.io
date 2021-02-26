@@ -58,13 +58,21 @@ return function(fn){loaded?setTimeout(fn,0):fns.push(fn)}});</script>
 <script>
     !function(e,t){typeof module!="undefined"?module.exports=t():typeof define=="function"&&typeof define.amd=="object"?define(t):this[e]=t()}("domready",function(){var e=[],t,n=typeof document=="object"&&document,r=n&&n.documentElement.doScroll,i="DOMContentLoaded",s=n&&(r?/^loaded|^c/:/^loaded|^i|^c/).test(n.readyState);return!s&&n&&n.addEventListener(i,t=function(){n.removeEventListener(i,t),s=1;while(t=e.shift())t()}),function(t){s?setTimeout(t,0):e.push(t)}})    
 
+        let clientRect;
+        let bg;
+        let mid;
+        let fg;
+        let image;
+        let scores;
+
+
     domready(()=>{
-        const clientRect = document.body.getBoundingClientRect();
-        const bg  = new Canvas(document.querySelector("#bg" ), clientRect.width, clientRect.height);
-        const mid = new Canvas(document.querySelector("#mid"), clientRect.width, clientRect.height);
-        const fg  = new Canvas(document.querySelector("#fg" ), clientRect.width, clientRect.height);
-        const image = new Image();
-        const scores = {
+        clientRect = document.body.getBoundingClientRect();
+        bg  = new Canvas(document.querySelector("#bg" ), clientRect.width, clientRect.height);
+        mid = new Canvas(document.querySelector("#mid"), clientRect.width, clientRect.height);
+        fg  = new Canvas(document.querySelector("#fg" ), clientRect.width, clientRect.height);
+        image = new Image();
+        scores = {
             quiz1: 0,
             quiz2: 0,
             quiz3: 0,
