@@ -64,7 +64,11 @@ return function(fn){loaded?setTimeout(fn,0):fns.push(fn)}});</script>
         let fg;
         let image;
         let scores;
-
+	let clearAllCanvas;
+	let drawSplash;
+	let isInPath;
+	let submitAnswer;
+	let enableTouchEvents;
 
     domready(()=>{
         clientRect = document.body.getBoundingClientRect();
@@ -102,7 +106,7 @@ return function(fn){loaded?setTimeout(fn,0):fns.push(fn)}});</script>
             window.addEventListener("resize", adjustCanvasDimension);
         })();
 
-        const clearAllCanvas = ()=>{
+        clearAllCanvas = ()=>{
             bg.removeAllItems();
             mid.removeAllItems();
             fg.removeAllItems();
@@ -112,7 +116,7 @@ return function(fn){loaded?setTimeout(fn,0):fns.push(fn)}});</script>
             fg.clear();
         }
 
-        const drawSplash = (imgurl, canvas = bg) =>{
+        drawSplash = (imgurl, canvas = bg) =>{
             return new Promise((resolve)=>{
                 (async ()=>{
                     canvas.addItem(new CanvasImage(await image.load(imgurl), 0, 0, 1920, 1080));
@@ -122,7 +126,7 @@ return function(fn){loaded?setTimeout(fn,0):fns.push(fn)}});</script>
             });
         }
 
-        const isInPath = (x, y, path, ctx = fg.ctx, originX = 0, originY = 0, scaleX = 1, scaleY = 1)=>{
+        isInPath = (x, y, path, ctx = fg.ctx, originX = 0, originY = 0, scaleX = 1, scaleY = 1)=>{
             let retval = false;
 
             ctx.save();
@@ -139,7 +143,7 @@ return function(fn){loaded?setTimeout(fn,0):fns.push(fn)}});</script>
             return retval;
         }
 
-        const submitAnswer = async (canvas = fg)=>{
+        submitAnswer = async (canvas = fg)=>{
             const originX = 1920/2-405/2;
             const originY = 1080/2-233/2;
 
@@ -188,7 +192,7 @@ return function(fn){loaded?setTimeout(fn,0):fns.push(fn)}});</script>
             return retval;
         }
 
-        const enableTouchEvents = () => {
+        enableTouchEvents = () => {
             const canvas = fg.canvas;
 
             canvas.addEventListener(
