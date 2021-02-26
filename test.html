@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        canvas {
+            width: 100%;
+            height: calc(100% * 1080px / 1920px);
+            border: 1px solid #000;
+            box-sizing: content-box;
+        }
+    </style>
+</head>
+<body>
+    <canvas width="1920" height="1080"></canvas>
+    <script>
+        const canvas = document.querySelector("canvas");
+        var ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#FF0000";
+        ctx.fillRect(1920 - 100, 1080 - 100, 90, 90);
+        </script>        
+    </script>
+</body>
+</html>

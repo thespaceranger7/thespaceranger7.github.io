@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+	<meta name="generator" content="Hugo 0.68.3" />
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Solar System</title>
+
+    <style>body,html{min-width:100vw;min-height:calc(100vw * 1080px/1920px);margin:0;border:0;padding:0}body{position:relative}img{position:absolute;height:0;opacity:0}canvas{position:absolute;top:0;left:0;box-sizing:border-box}</style>
+
+    <script>/*!
+* domready (c) Dustin Diaz 2014 - License MIT
+*/!function(name,definition){if(typeof module!='undefined')module.exports=definition()
+else if(typeof define=='function'&&typeof define.amd=='object')define(definition)
+else this[name]=definition()}('domready',function(){var fns=[],listener,doc=typeof document==='object'&&document,hack=doc&&doc.documentElement.doScroll,domContentLoaded='DOMContentLoaded',loaded=doc&&(hack?/^loaded|^c/:/^loaded|^i|^c/).test(doc.readyState)
+if(!loaded&&doc)
+doc.addEventListener(domContentLoaded,listener=function(){doc.removeEventListener(domContentLoaded,listener)
+loaded=1
+while(listener=fns.shift())listener()})
+return function(fn){loaded?setTimeout(fn,0):fns.push(fn)}});</script>
+</head>
+<body>
+	
+	
+<style>
+    body {
+        min-width: 100vw;
+        min-height: 100vh;
+        margin: 0;
+        border: 0;
+        padding: 0;
+    }
+</style>
+
+<canvas id="bg"  width="1920" height="1080"></canvas>
+<canvas id="mid" width="1920" height="1080"></canvas>
+<canvas id="fg"  width="1920" height="1080"></canvas>
+
+
+
+
+<script src='/js/image.js'></script>
+<script src='/js/canvas.js'></script>
+<script src='/js/canvasItem.js'></script>
+
+<script src='https://thespaceranger7.github.io/js/canvasImage.js'></script>
+
+<script src='https://thespaceranger7.github.io/js/intro.js'></script>
+<script src='https://thespaceranger7.github.io/js/lesson.js'></script>
+<script src='https://thespaceranger7.github.io/js/quiz1.js'></script>
+<script src='https://thespaceranger7.github.io/js/quiz2.js'></script>
+<script src='https://thespaceranger7.github.io/js/quiz3.js'></script>
+<script src='https://thespaceranger7.github.io/js/quiz4.js'></script>
+<script src='https://thespaceranger7.github.io/js/quiz5.js'></script>
+<script src='https://thespaceranger7.github.io/js/scores.js'></script>
+
+<script>
+    !function(e,t){typeof module!="undefined"?module.exports=t():typeof define=="function"&&typeof define.amd=="object"?define(t):this[e]=t()}("domready",function(){var e=[],t,n=typeof document=="object"&&document,r=n&&n.documentElement.doScroll,i="DOMContentLoaded",s=n&&(r?/^loaded|^c/:/^loaded|^i|^c/).test(n.readyState);return!s&&n&&n.addEventListener(i,t=function(){n.removeEventListener(i,t),s=1;while(t=e.shift())t()}),function(t){s?setTimeout(t,0):e.push(t)}})    
+
+    domready(()=>{
+        const clientRect = document.body.getBoundingClientRect();
+        const bg  = new Canvas(document.querySelector("#bg" ), clientRect.width, clientRect.height);
+        const mid = new Canvas(document.querySelector("#mid"), clientRect.width, clientRect.height);
+        const fg  = new Canvas(document.querySelector("#fg" ), clientRect.width, clientRect.height);
+        const image = new Image();
+        const scores = {
+            quiz1: 0,
+            quiz2: 0,
+            quiz3: 0,
+            quiz4: 0,
+            quiz5: 0,
+        };
+
+        (()=>{
+            const adjustCanvasDimension = ()=>{
+                let width;
+                let height;
+                if ((window.innerWidth * 1080 / 1920) <= window.innerHeight) {
+                    width = window.innerWidth;
+                    height = window.innerWidth * 1080 / 1920;
+                }
+                else {
+                    width = window.innerHeight * 1920 / 1080;
+                    height = window.innerHeight;
+                }
+                document.querySelectorAll("canvas").forEach(canvas=>{
+                    canvas.style.width = `${width}px`;
+                    canvas.style.height = `${height}px`;
+                })
+            }
+
+            adjustCanvasDimension();
+            window.addEventListener("resize", adjustCanvasDimension);
+        })();
+
+        const clearAllCanvas = ()=>{
+            bg.removeAllItems();
+            mid.removeAllItems();
+            fg.removeAllItems();
+        
+            bg.clear();
+            mid.clear();
+            fg.clear();
+        }
+
+        const drawSplash = (imgurl, canvas = bg) =>{
+            return new Promise((resolve)=>{
+                (async ()=>{
+                    canvas.addItem(new CanvasImage(await image.load(imgurl), 0, 0, 1920, 1080));
+                    canvas.draw();
+                    fg.addEventListener("click", ()=>resolve(), {once: true});
+                })();
+            });
+        }
+
+        const isInPath = (x, y, path, ctx = fg.ctx, originX = 0, originY = 0, scaleX = 1, scaleY = 1)=>{
+            let retval = false;
+
+            ctx.save();
+
+            ctx.translate(originX, originY);
+
+            const p = new Path2D(path);
+            ctx.scale(scaleX, scaleY);
+
+            retval = ctx.isPointInPath(p, x, y);
+
+            ctx.restore();
+            
+            return retval;
+        }
+
+        const submitAnswer = async (canvas = fg)=>{
+            const originX = 1920/2-405/2;
+            const originY = 1080/2-233/2;
+
+            const ctx = canvas.ctx;
+            ctx.save();
+            ctx.translate(originX,originY);
+            
+            ctx.drawImage(await image.load('https:\/\/thespaceranger7.github.io\/img\/YES%20and%20NO.png'),0,0);
+            ctx.restore();
+
+            const retval = await (async()=>{
+                const options = [
+                    {   value: "YES",
+                        path: 'M 59.00,148.52 C 59.00,148.52 89.00,148.00 89.00,148.00 89.00,148.00 145.00,148.00 145.00,148.00 150.57,148.01 153.84,148.08 159.00,150.66 175.42,158.87 179.27,181.44 166.67,194.82 160.74,201.11 153.28,202.99 145.00,203.00 145.00,203.00 67.00,203.00 67.00,203.00 58.48,202.99 51.44,201.07 45.18,194.82 38.87,188.50 37.91,182.43 38.00,174.00 38.16,160.58 46.38,151.92 59.00,148.52 Z'
+                    },
+                    {   value: "NO",
+                        path: 'M 253.00,148.52 C 253.00,148.52 283.00,148.00 283.00,148.00 283.00,148.00 339.00,148.00 339.00,148.00 344.68,148.01 348.82,148.12 354.00,150.91 370.24,159.66 373.22,183.15 359.91,195.82 353.72,201.70 347.18,202.99 339.00,203.00 339.00,203.00 261.00,203.00 261.00,203.00 254.02,202.99 250.06,202.51 244.04,198.45 224.64,185.38 229.10,155.10 253.00,148.52 Z'
+                    }
+                ];
+
+                for (;;){
+                    console.log("LOOP STARTED");
+                    const ans = await new Promise(resolve=>{
+                        fg.addEventListener(
+                            "click",
+                            (e)=>{
+                                const x = Math.round(e.offsetX * 1920 / fg.canvas.offsetWidth);
+                                const y = Math.round(e.offsetY * 1080 / fg.canvas.offsetHeight);
+                                
+
+                                resolve(options.find(opt=>{
+                                    return isInPath(x,y,opt.path,fg.ctx,originX,originY);
+                                }))
+                            },
+                            {once: true}
+                        );
+                    });
+                    
+                    if (ans) {
+                        if (ans.value == "YES") return true;
+                        else return false;
+                    }
+                }
+            })();
+            canvas.clear();
+            return retval;
+        }
+
+        const enableTouchEvents = () => {
+            const canvas = fg.canvas;
+
+            canvas.addEventListener(
+                "touchstart",
+                (e)=>{
+                    const touch = e.touches[0];
+                    const mouseEvent = new MouseEvent("mousedown", {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY,
+                        screenX: touch.screenX,
+                        screenY: touch.screenY,
+                    });
+                    console.log(`dispatch mousedown`, mouseEvent)
+                    canvas.dispatchEvent(mouseEvent);   
+                },
+                false
+            );
+
+            canvas.addEventListener(
+                "touchend",
+                (e)=>{
+                    const mouseEvent = new MouseEvent("mouseup", {
+                        clientX: e.changedTouches[0].clientX,
+                        clientY: e.changedTouches[0].clientY,
+                        screenX: e.changedTouches[0].screenX,
+                        screenY: e.changedTouches[0].screenY,
+                    });
+                    console.log(`dispatch mouseup`, mouseEvent)
+                    canvas.dispatchEvent(mouseEvent);
+                },
+                false
+            );
+
+            canvas.addEventListener(
+                "touchmove",
+                (e)=>{
+                    e.preventDefault();
+                    const touch = e.touches[0];
+                    const mouseEvent = new MouseEvent("mousemove", {
+                        clientX: touch.clientX,
+                        clientY: touch.clientY,
+                        screenX: touch.screenX,
+                        screenY: touch.screenY,
+                    });
+                    canvas.dispatchEvent(mouseEvent);
+                },
+                false
+            );
+        }
+
+        (async ()=>{
+            
+            [
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/1-%20COVER.jpg',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/2-%20Preface.jpg',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/3-%20TRANSITION.jpg',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/4-%20SOLAR%20SYSTEM%206.jpg',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/5-SS%201.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/5-SS%202.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/5-SS%203.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/6-PLANETS%20.jpg',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/7-%203%20CRITERIA.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/8-%20PLUTO.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/9-%20Terrestrial%20Planets%201.jpg',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/9-%20Terrestrial%20Planets%202.jpg',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/10-ASTEROID%20BELT%201.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/11-Jovian%20Planets%201.jpg',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/11-Jovian%20Planets%202.jpg',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/12-KUIPER%20BELT.png',
+
+                'https:\/\/thespaceranger7.github.io\/img\/journey\/sun.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/sun1-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/sun2-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/sun3-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/journey\/mercury-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/mercury1-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/mercury2-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/journey\/venus-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/venus1-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/venus2-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/journey\/earth.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/earth1-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/earth2-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/earth3-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/journey\/mars-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/mars1-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/mars2-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/journey\/jupiter-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/jupiter1-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/jupiter2-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/jupiter3-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/journey\/saturn-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/saturn1-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/saturn2-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/saturn3-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/journey\/uranus-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/uranus1-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/uranus2-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/uranus3-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/journey\/neptune-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/neptune1-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/neptune2-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/neptune3-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/journey\/comet_PNG38%20%281%29.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/comet-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/journey\/asteroid.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/asteroid-cropped.png',
+                'https:\/\/thespaceranger7.github.io\/img\/journey\/astronaut.png',
+                'https:\/\/thespaceranger7.github.io\/img\/lecture\/BACKGROUND].jpg',
+
+                'https:\/\/thespaceranger7.github.io\/img\/YES%20and%20NO.png',
+
+                'https:\/\/thespaceranger7.github.io\/img\/quiz1\/TRANSITION%20LECTURE%20TO%20GAME.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz1\/front%20wanderers%20%282%29.jpg',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz1\/1-%20GAME.jpg',
+
+                'https:\/\/thespaceranger7.github.io\/img\/quiz2\/jovian_planets.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz2\/terrestial_planets.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz2\/bg.jpg',
+
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/4%20words,%201%20picture.jpg',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/Q1%20.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/Q2.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/Q3.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/Q4.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/Q5.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/Q6.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/Q7.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/Q8.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/Q9.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/Q10.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/Q1A.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/Q2A.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/Q3A.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/Q4A.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/Q5A.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/Q6A.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/q7a.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/Q8A.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/Q9A.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz3\/Q10A.png',
+
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/LEVEL4\/Planet%20Escape%20%282%29.jpg',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/LEVEL4\/Q1.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/QUIZ4\/Q1.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/LEVEL4\/Q2.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/QUIZ4\/Q2.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/LEVEL4\/Q3.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/QUIZ4\/Q3.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/LEVEL4\/Q4.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/QUIZ4\/Q4.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/LEVEL4\/Q5.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/QUIZ4\/Q5.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/LEVEL4\/Q6.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/QUIZ4\/Q6.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/LEVEL4\/Q7.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/QUIZ4\/Q7.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/LEVEL4\/Q8.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/QUIZ4\/Q8.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/LEVEL4\/Q9.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/QUIZ4\/Q9.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/LEVEL4\/Q10.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/QUIZ4\/Q10.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/LEVEL4\/Q11.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/QUIZ4\/Q11.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/LEVEL4\/Q12.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz4\/QUIZ4\/Q12.png',
+
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/the%20planetary%20lab%20%282%29.jpg',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/1.%20MERCURY.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/01.Mercury-1.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/01.Mercury-2.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/2.%20VENUS.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/02.Venus-1.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/02.Venus-2.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/3.%20EARTH%20%282%29.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/03.Earth-1.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/03.Earth-2.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/4.%20MARS.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/04.Mars-1.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/04.Mars-2.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/5.%20JUPITER.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/05.Jupiter-1.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/05.Jupiter-2.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/6.%20SATURN.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/06.Saturn-1.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/06.Saturn-2.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/7.%20URANUS.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/07.Uranus-1.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/07.Uranus-2.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/8.%20NEPTUNE.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/08.Neptune-1.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/08.Neptune-2.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/9.%20SUN%20.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/09.Sun-1.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/09.Sun-2.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/10.%20MOON%20%282%29.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/10.Moon-1.png',
+                'https:\/\/thespaceranger7.github.io\/img\/quiz5\/10.Moon-2.png',            
+            ].reduce(async (prevPromise, url) => {
+                await prevPromise;
+                return image.load(url);
+            }, Promise.resolve());
+            
+            
+
+            enableTouchEvents();
+
+            await intro();
+            await lesson();
+            scores.quiz1 = await quiz1();
+            scores.quiz2 = await quiz2();
+            scores.quiz3 = await quiz3();
+            scores.quiz4 = await quiz4();
+            scores.quiz5 = await quiz5();
+            await showScores(scores);
+            console.log("end");
+        })();
+    });        
+</script>
+
+	
+</body>
+</html>
